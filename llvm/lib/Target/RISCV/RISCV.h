@@ -30,6 +30,7 @@ class MachineInstr;
 class MachineOperand;
 class PassRegistry;
 
+
 void LowerRISCVMachineInstrToMCInst(const MachineInstr *MI, MCInst &OutMI,
                                     const AsmPrinter &AP);
 bool LowerRISCVMachineOperandToMCOperand(const MachineOperand &MO,
@@ -39,6 +40,9 @@ FunctionPass *createRISCVISelDag(RISCVTargetMachine &TM);
 
 FunctionPass *createRISCVMergeBaseOffsetOptPass();
 void initializeRISCVMergeBaseOffsetOptPass(PassRegistry &);
+
+FunctionPass *createRISCVMachineInstrPrinterPass();
+void initializeRISCVMachineInstrPrinterPass(PassRegistry &);
 
 FunctionPass *createRISCVExpandPseudoPass();
 void initializeRISCVExpandPseudoPass(PassRegistry &);

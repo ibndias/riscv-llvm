@@ -29,6 +29,7 @@ add_llvm_target(RISCVCodeGen
   RISCVLegalizerInfo.cpp
   RISCVMCInstLower.cpp
   RISCVMergeBaseOffset.cpp
+  RISCVMachineInstrPrinter.cpp
   RISCVRegisterBankInfo.cpp
   RISCVRegisterInfo.cpp
   RISCVSubtarget.cpp

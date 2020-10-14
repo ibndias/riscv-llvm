@@ -38,6 +38,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeRISCVTarget() {
   auto PR = PassRegistry::getPassRegistry();
   initializeGlobalISel(*PR);
   initializeRISCVExpandPseudoPass(*PR);
+  initializeRISCVMachineInstrPrinterPass(*PR);
 }
 
 static StringRef computeDataLayout(const Triple &TT) {
@@ -131,7 +132,7 @@ public:
   void addPreSched2() override;
   void addPreRegAlloc() override;
 };
-}
+} // namespace
 
 TargetPassConfig *RISCVTargetMachine::createPassConfig(PassManagerBase &PM) {
   return new RISCVPassConfig(*this, PM);
@@ -178,6 +179,7 @@ void RISCVPassConfig::addPreEmitPass2() {
   // possibility for other passes to break the requirements for forward
   // progress in the LR/SC block.
   addPass(createRISCVExpandAtomicPseudoPass());
+  addPass(createRISCVMachineInstrPrinterPass());
 }
 
 void RISCVPassConfig::addPreRegAlloc() {
