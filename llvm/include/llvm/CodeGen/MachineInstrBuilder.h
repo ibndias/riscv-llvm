@@ -108,6 +108,26 @@ public:
                                     unsigned SubReg = 0) const {
     return addReg(RegNo, Flags | RegState::Define, SubReg);
   }
+  //jinjae
+  const MachineInstrBuilder &addbti(unsigned int sign, unsigned flags = 0,
+                                    unsigned SubReg = 0) const {
+    Register RegNo = 35 + (sign & 0x3);
+    uint64_t Val = sign >> 2;
+    MI->addOperand(*MF, MachineOperand::CreateReg(RegNo,
+                                               flags & RegState::Define,
+                                               flags & RegState::Implicit,
+                                               flags & RegState::Kill,
+                                               flags & RegState::Dead,
+                                               flags & RegState::Undef,
+                                               flags & RegState::EarlyClobber,
+                                               SubReg,
+                                               flags & RegState::Debug,
+                                               flags & RegState::InternalRead,
+                                               flags & RegState::Renamable));
+    //printf("Val : %d\n",Val);
+    MI->addOperand(*MF, MachineOperand::CreateImm(Val));                                               
+    return *this;
+  }
 
   /// Add a virtual register use operand. It is an error for Flags to contain
   /// `RegState::Define` when calling this function.

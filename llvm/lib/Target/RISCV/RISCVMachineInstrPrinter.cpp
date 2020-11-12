@@ -5,13 +5,8 @@
 #include "llvm/CodeGen/MachineFunctionPass.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
-#include "llvm/IR/Function.h"
-#include "llvm/IR/Instructions.h"
-#include <iostream>
-#include <utility>
 
 using namespace llvm;
-using namespace std;
 
 #define RISCV_MACHINEINSTR_PRINTER_PASS_NAME                                   \
   "Dummy RISCV machineinstr printer pass"
@@ -34,14 +29,13 @@ public:
 };
 
 char RISCVMachineInstrPrinter::ID = 0;
-// TODO: INDIRECT CHECK, if it jumps or not
-// TODO: Function what can we read inside
-// TODO: Switch case ins become what?
-int idx = 0;
-pair<string, int> func[10];
+//TODO: INDIRECT CHECK, if it jumps or not
+//TODO: Function what can we read inside
+//TODO: Switch case ins become what?
 bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
   int x = 0;
-  bool is_instrumented = false;
+  int y = 0;
+  unsigned int flag;
   for (auto &MBB : MF) {
     /*
     outs() << "Contents of MachineBasicBlock:\n";
@@ -50,110 +44,74 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
     outs() << "Contents of BasicBlock corresponding to MachineBasicBlock:\n";
     outs() << BB << "\n";
     */
-
-    outs() << "Here at: " << MF.getName() << ", ";
-    outs() << "has " << MF.getFunction().arg_size() << " arguments \n";
-    func[idx++] = make_pair(MF.getName().str(), MF.getFunction().arg_size());
-    outs() << "Make Pair: " << func[idx - 1].first << ":"
-           << func[idx - 1].second << " arguments \n";
-
-    for (auto &B : MF.getFunction()) {
-
-      for (auto &I : B) {
-        Instruction *currInstrPtr = &I;
-        // is this a call instruction?
-        if (CallBase *CI = dyn_cast<CallBase>(currInstrPtr)) {
-          Function *CalledF = CI->getCalledFunction();
-          I.print(llvm::errs());
-
-          /*
-          outs() << "\n[IR Iterator] PairList: \n";
-          for (int i = 0; i < idx; i++) {
-
-            outs() << "\n[IR Iterator] " << func[i].first << ":"
-                   << func[i].second << " \n";
-          }
-          */
-          outs() << "\n[IR Iterator] Func Name: \n";
-          for (int i = 0; i < idx; i++) {
-            if (func[i].first.compare(CI->getArgOperand(0)->getName().str()) ==
-                0) {
-              outs() << func[i].first << ":" << func[i].second << '\n';
-            }
-          }
-        }
-      }
+    if(y==0 && MF.getName().str().compare("main"))
+    {
+      
     }
-
+    x = 0;
     for (auto &MI : MBB) {
 
       MachineInstr *currInstrPtr = &MI;
-
       // is this a load instruction?
-      if (0 && x == 0 && MF.getName() != "main") {
-        outs() << "FIRST INST\n";
+      /*
+      if (MBB.hasAddressTaken() && x==0 && !(y == 0 && MF.getName().str().compare("main") == 0)) {
+        //printf("indirect child MBB : %d %s\n",MBB.getParent()->getFunctionNumber(), MBB.getParent()->getName());
+        flag = 4;//MF.getFunctionNumber();
+        
         const TargetInstrInfo *XII =
             MF.getSubtarget().getInstrInfo(); // target instruction info
         DebugLoc DL;
+        
         MachineBasicBlock::iterator MBBI =
-            BuildMI(MBB, MI, DL, XII->get(RISCV::SRLI), RISCV::X0)
-                .addImm(2)
-                .addImm(3);
-        is_instrumented = true;
+          BuildMI(MBB, MI, DL, XII->get(RISCV::SRLI), RISCV::X0)
+                .addbti(flag);
+      } else if(x==0 && !(y == 0 && MF.getName().str().compare("main")==0)) {
+        //printf("direct child MBB : %d %s\n",MBB.getParent()->getFunctionNumber(), MBB.getParent()->getName());
+        flag = 4;//MF.getFunctionNumber();
+        
+        const TargetInstrInfo *XII =
+            MF.getSubtarget().getInstrInfo(); // target instruction info
+        DebugLoc DL;
+        
+        MachineBasicBlock::iterator MBBI =
+          BuildMI(MBB, MI, DL, XII->get(RISCV::SRLI), RISCV::X0)
+                .addbti(flag);        
       }
-      // if (CallInst *CI = isa<CallInst>(currInstrPtr))
+      
+      if (MI.isIndirectBranch() || MI.isBranch()) {
+        //printf("parent MBB : %d %s\n",MF.getFunctionNumber(), MF.getName());
+        flag = 4;//MF.getFunctionNumber();
+        
+        const TargetInstrInfo *XII =
+            MF.getSubtarget().getInstrInfo(); // target instruction info
+        DebugLoc DL;
 
-      if (MI.isCall()) {
-        outs() << "\nFound Call\n";
-        /*
-        outs() << MI.getNumOperands() << "\n";
-        outs() << MI.getOperand(0).getGlobal()->getName() << "\n";
-        outs() << MI.getOperand(0).getImm() << "\n";
-        outs() << MI.getOperand(0).getSymbolName() << "\n";
-
-        outs() << MI.getNumDebugOperands() << "\n";
-        outs() << MI.getNumExplicitOperands() << "\n";
-        outs() << MI.getNumImplicitOperands() << "\n";
-        outs() << MI.getNumMemOperands() << "\n";
-        */
+        MachineBasicBlock::iterator MBBI =
+          BuildMI(MBB, MI, DL, XII->get(RISCV::SLLI), RISCV::X0)
+                .addbti(flag);
       }
+      */
+      ///*
+      if(MI.isCall() && MI.getOperand(0).getGlobal()->getName() == ""){
 
-      if (0 && MI.mayStore()) {
-        outs() << "Found Store\n";
-      }
-
-      if (0 && MI.isCall()) {
-        outs() << "XFound Call\n";
-        // outs() << MI.getNumOperands() << "\n";
-        // outs() << MI.getOperand(0).getSymbolName() << "\n";
-
-        // outs() << MI.getOperand(1) << "\n";
-
-        // outs() << MI.getOpcode() << "\n";
-        // outs() << MI.getOperand(0) << "\n";
-        // outs() << MI.getOperand(0).getGlobal()->getName() << "\n";
-        // outs() << MI.getOperand(0).getGlobal()->getGUID() << "\n";
-        // outs() << CI->getCalledFunction->getName() << "\n";
+        printf("indirect jump : %d %s\n",MF.getFunctionNumber(),MF.getName());
+        printf("next bb name : %d\n",MI.getOperand(0).getGlobal()->getNumOperands());
+        
+        flag = MF.getFunctionNumber();
 
         const TargetInstrInfo *XII =
             MF.getSubtarget().getInstrInfo(); // target instruction info
         DebugLoc DL;
-        /*
-        MachineBasicBlock::iterator MBBI = BuildMI(MBB, MI ,DL,
-        XII->get(RISCV::SW), RISCV::X1) .addReg(RISCV::X31) .addImm(0);
-        */
-        MachineBasicBlock::iterator MBBI =
-            BuildMI(MBB, MI, DL, XII->get(RISCV::SLLI), RISCV::X0)
-                .addImm(2)
-                .addImm(3);
 
-        is_instrumented = true;
+        MachineBasicBlock::iterator MBBI =
+          BuildMI(MBB, MI, DL, XII->get(RISCV::SLLI), RISCV::X0)
+                .addbti(flag);
       }
-      x++;
+      //*/
+    x++;  
     }
-    return is_instrumented;
+  y++;
   }
-
   return false;
 }
 
