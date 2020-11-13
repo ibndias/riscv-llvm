@@ -111,8 +111,8 @@ public:
   //jinjae
   const MachineInstrBuilder &addbti(unsigned int sign, unsigned flags = 0,
                                     unsigned SubReg = 0) const {
-    Register RegNo = 35 + (sign & 0x3);
-    uint64_t Val = sign >> 2;
+    Register RegNo = 35 + (sign & 0x1F);
+    uint64_t Val = (sign>>5) & 0x1F;
     MI->addOperand(*MF, MachineOperand::CreateReg(RegNo,
                                                flags & RegState::Define,
                                                flags & RegState::Implicit,
@@ -124,7 +124,7 @@ public:
                                                flags & RegState::Debug,
                                                flags & RegState::InternalRead,
                                                flags & RegState::Renamable));
-    //printf("Val : %d\n",Val);
+    //printf("Sign: %d\nVal : %d\n",sign,Val);
     MI->addOperand(*MF, MachineOperand::CreateImm(Val));                                               
     return *this;
   }
