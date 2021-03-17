@@ -83,6 +83,7 @@ BitVector RISCVRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   markSuperRegs(Reserved, RISCV::X2); // sp
   markSuperRegs(Reserved, RISCV::X3); // gp
   markSuperRegs(Reserved, RISCV::X4); // tp
+  Reserved.set(RISCV::X31); //t6
   if (TFI->hasFP(MF))
     markSuperRegs(Reserved, RISCV::X8); // fp
   // Reserve the base register if we need to realign the stack and allocate

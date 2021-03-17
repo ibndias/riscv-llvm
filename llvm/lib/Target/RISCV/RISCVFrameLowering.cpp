@@ -289,7 +289,14 @@ void RISCVFrameLowering::emitPrologue(MachineFunction &MF,
       MCCFIInstruction::cfiDefCfaOffset(nullptr, RealStackSize));
   BuildMI(MBB, MBBI, DL, TII->get(TargetOpcode::CFI_INSTRUCTION))
       .addCFIIndex(CFIIndex);
-
+/*      
+BuildMI(MBB, MBBI, DL, TII->get(RISCV::ADDI), RISCV::X31)
+      .addReg(RISCV::X31)
+      .addImm(-4);
+  BuildMI(MBB, MBBI, DL, TII->get(RISCV::SSW),RISCV::X1)
+      .addReg(RISCV::X31)
+      .addImm(0);
+*/
   const auto &CSI = MFI.getCalleeSavedInfo();
 
   // The frame pointer is callee-saved, and code has been generated for us to

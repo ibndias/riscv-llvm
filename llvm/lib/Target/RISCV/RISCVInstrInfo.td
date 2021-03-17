@@ -527,7 +527,9 @@ def CSRRCI : CSR_ii<0b111, "csrrci">;
 let Predicates = [IsRV64] in {
 def LWU   : Load_ri<0b110, "lwu">, Sched<[WriteLDWU, ReadMemBase]>;
 def LD    : Load_ri<0b011, "ld">, Sched<[WriteLDD, ReadMemBase]>;
+def LT    : Load_ri<0b111, "lt">, Sched<[WriteLDD, ReadMemBase]>;
 def SD    : Store_rri<0b011, "sd">, Sched<[WriteSTD, ReadStoreData, ReadMemBase]>;
+def ST    : Store_rri<0b111, "st">, Sched<[WriteSTD, ReadStoreData, ReadMemBase]>;
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
 def ADDIW : RVInstI<0b000, OPC_OP_IMM_32, (outs GPR:$rd),
@@ -629,6 +631,8 @@ let Predicates = [IsRV64] in {
 def PseudoLWU : PseudoLoad<"lwu">;
 def PseudoLD  : PseudoLoad<"ld">;
 def PseudoSD  : PseudoStore<"sd">;
+def PseudoLT  : PseudoLoad<"lt">;
+def PseudoST  : PseudoStore<"st">;
 } // Predicates = [IsRV64]
 
 def : InstAlias<"mv $rd, $rs",   (ADDI GPR:$rd, GPR:$rs,       0)>;
@@ -767,6 +771,10 @@ def : InstAlias<"ld $rd, (${rs1})",
                 (LD  GPR:$rd, GPR:$rs1, 0)>;
 def : InstAlias<"sd $rs2, (${rs1})",
                 (SD  GPR:$rs2, GPR:$rs1, 0)>;
+def : InstAlias<"lt $rd, (${rs1})",
+                (LT  GPR:$rd, GPR:$rs1, 0)>;
+def : InstAlias<"st $rs2, (${rs1})",
+                (ST  GPR:$rs2, GPR:$rs1, 0)>;
 
 def : InstAlias<"addw $rd, $rs1, $imm12",
                 (ADDIW  GPR:$rd, GPR:$rs1, simm12:$imm12)>;
@@ -1140,11 +1148,13 @@ defm : LdPat<sextloadi32, LW>;
 defm : LdPat<extloadi32, LW>;
 defm : LdPat<zextloadi32, LWU>;
 defm : LdPat<load, LD>;
+defm : LdPat<load, LT>;
 
 /// Stores
 
 defm : StPat<truncstorei32, SW, GPR>;
 defm : StPat<store, SD, GPR>;
+defm : StPat<store, ST, GPR>;
 } // Predicates = [IsRV64]
 
 /// readcyclecounter

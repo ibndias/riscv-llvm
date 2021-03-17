@@ -536,6 +536,7 @@ void RISCVDAGToDAGISel::doPeepholeLoadStoreADDI() {
     case RISCV::LHU:
     case RISCV::LWU:
     case RISCV::LD:
+    case RISCV::LT:
     case RISCV::FLW:
     case RISCV::FLD:
       BaseOpIdx = 0;
@@ -545,6 +546,7 @@ void RISCVDAGToDAGISel::doPeepholeLoadStoreADDI() {
     case RISCV::SH:
     case RISCV::SW:
     case RISCV::SD:
+    case RISCV::ST:
     case RISCV::FSW:
     case RISCV::FSD:
       BaseOpIdx = 1;
