@@ -289,6 +289,31 @@ void RISCVFrameLowering::emitPrologue(MachineFunction &MF,
       MCCFIInstruction::cfiDefCfaOffset(nullptr, RealStackSize));
   BuildMI(MBB, MBBI, DL, TII->get(TargetOpcode::CFI_INSTRUCTION))
       .addCFIIndex(CFIIndex);
+  
+
+/*
+  //Set shadow stack address for ex: 80000000
+  //li t6, 0x80000000
+  //became
+  // lui t6,0xfff80000
+  BuildMI(MBB, MBBI, DL, TII->get(RISCV::LUI), RISCV::X31)
+      .addImm(0xfff80000);
+
+  // addi t6, t6, -4
+  BuildMI(MBB, MBBI, DL, TII->get(RISCV::ADDI), RISCV::X31)
+      .addReg(RISCV::X31)
+      .addImm(-4);
+  //
+  //sw ra, 0(t6)
+  BuildMI(MBB, MBBI, DL, TII->get(RISCV::SW), RISCV::X1)
+      .addReg(RISCV::X31)
+      .addImm(0);
+
+  //st zero, 0(t6)
+  BuildMI(MBB, MBBI, DL, TII->get(RISCV::ST), RISCV::X0)
+      .addReg(RISCV::X31)
+      .addImm(0);
+*/
 /*      
 BuildMI(MBB, MBBI, DL, TII->get(RISCV::ADDI), RISCV::X31)
       .addReg(RISCV::X31)
