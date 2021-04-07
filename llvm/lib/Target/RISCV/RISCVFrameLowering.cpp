@@ -486,9 +486,20 @@ void RISCVFrameLowering::emitEpilogue(MachineFunction &MF,
 
   if (FirstSPAdjustAmount)
     StackSize = FirstSPAdjustAmount;
-
+  
   // Deallocate stack
   adjustReg(MBB, MBBI, DL, SPReg, SPReg, StackSize, MachineInstr::FrameDestroy);
+
+    const RISCVInstrInfo *TII = STI.getInstrInfo();
+  // load shadow to ra : lw ra, 0(t6)
+  BuildMI(MBB, MBBI, DL, TII->get(RISCV::LD), RISCV::X1)
+            .addReg(RISCV::X31)
+            .addImm(0);
+
+  // restore stack on shadow : addi t6, t6, 4
+  BuildMI(MBB, MBBI, DL, TII->get(RISCV::ADDI), RISCV::X31)
+            .addReg(RISCV::X31)
+            .addImm(16);
 }
 
 int RISCVFrameLowering::getFrameIndexReference(const MachineFunction &MF,

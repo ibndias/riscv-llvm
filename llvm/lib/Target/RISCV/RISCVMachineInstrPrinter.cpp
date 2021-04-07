@@ -43,69 +43,69 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
   int x = 0;
   bool is_instrumented = false;
   for (auto &MBB : MF) {
-   
 
     for (auto &MI : MBB) {
       MachineInstr *currInstrPtr = &MI;
 
       // is this a main?
       if (x == 0) {
-        //outs() << "FIRST INST\n";
+        // outs() << "FIRST INST\n";
         const TargetInstrInfo *XII =
             MF.getSubtarget().getInstrInfo(); // target instruction info
         DebugLoc DL;
         if (MF.getName() == "main") {
-          // allocate stack for shadow stack
+          // // allocate stack for shadow stack
 
-          // Copy SP to T6: addi x31, x2, 0
-          MachineBasicBlock::iterator MBBI =
-              BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
-                  .addReg(RISCV::X2)
-                  .addImm(0);
+          // // Copy SP to T6: addi x31, x2, 0
+          // MachineBasicBlock::iterator MBBI =
+          //     BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
+          //         .addReg(RISCV::X2)
+          //         .addImm(0);
 
-          // Copy Load 0x100 000 (MB) to T5 : lui x30, 0x100
-          BuildMI(MBB, MI, DL, XII->get(RISCV::LUI), RISCV::X30).addImm(0x100);
+          // // Copy Load 0x100 000 (MB) to T5 : lui x30, 0x100
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::LUI), RISCV::X30).addImm(0x400);
 
-          // Decrease SP : sub x2, x2, x30
-          BuildMI(MBB, MI, DL, XII->get(RISCV::SUB), RISCV::X2)
-              .addReg(RISCV::X2)
-              .addReg(RISCV::X30);
+          // // Decrease SP : sub x2, x2, x30
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::SUB), RISCV::X2)
+          //     .addReg(RISCV::X2)
+          //     .addReg(RISCV::X30);
+
+          // is_instrumented = true;
+        } else {
+          // allocate stack on shadow : addi t6, t6, -4
+          BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
+              .addReg(RISCV::X31)
+              .addImm(-16);
+          // save ra to shadow : sw ra, 0(t6)
+          BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
+              .addReg(RISCV::X31)
+              .addImm(0);
+          // tag the shadow : st zero, 0(t6)
+          BuildMI(MBB, MI, DL, XII->get(RISCV::ST), RISCV::X0)
+              .addReg(RISCV::X31)
+              .addImm(0);
 
           is_instrumented = true;
         }
-        // allocate stack on shadow : addi t6, t6, -4
-        BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
-            .addReg(RISCV::X31)
-            .addImm(-4);
-        // save ra to shadow : sw ra, 0(t6)
-        BuildMI(MBB, MI, DL, XII->get(RISCV::SW), RISCV::X1)
-            .addReg(RISCV::X31)
-            .addImm(0);
-        // tag the shadow : st zero, 0(t6)
-        BuildMI(MBB, MI, DL, XII->get(RISCV::ST), RISCV::X0)
-            .addReg(RISCV::X31)
-            .addImm(0);
-        
-         is_instrumented = true;
       }
-      if(MI.isReturn())
-      {
-        const TargetInstrInfo *XII =
-            MF.getSubtarget().getInstrInfo(); // target instruction info
-        DebugLoc DL;
-        // load shadow to ra : lw ra, 0(t6)
-        BuildMI(MBB, MI, DL, XII->get(RISCV::LW), RISCV::X1)
-            .addReg(RISCV::X31)
-            .addImm(0);
 
-        // restore stack on shadow : addi t6, t6, 4
-        BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
-            .addReg(RISCV::X31)
-            .addImm(4);
+      // if (MI.isReturn()) {
+      //   const TargetInstrInfo *XII =
+      //       MF.getSubtarget().getInstrInfo(); // target instruction info
+      //   DebugLoc DL;
+      //   // load shadow to ra : lw ra, 0(t6)
+      //   BuildMI(MBB, MI, DL, XII->get(RISCV::LD), RISCV::X1)
+      //       .addReg(RISCV::X31)
+      //       .addImm(0);
 
-         is_instrumented = true;
-      }
-      
+      //   // restore stack on shadow : addi t6, t6, 4
+      //   BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
+      //       .addReg(RISCV::X31)
+      //       .addImm(16);
+
+      //   is_instrumented = true;
+      // }
+
       x++;
     }
     return is_instrumented;
