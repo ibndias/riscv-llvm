@@ -47,12 +47,12 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
     for (auto &MI : MBB) {
       MachineInstr *currInstrPtr = &MI;
 
-      // is this a main?
+      // outs() << "FIRST INST\n";
+      const TargetInstrInfo *XII =
+          MF.getSubtarget().getInstrInfo(); // target instruction info
+      DebugLoc DL;
+      // is this a very first block?
       if (x == 0) {
-        // outs() << "FIRST INST\n";
-        const TargetInstrInfo *XII =
-            MF.getSubtarget().getInstrInfo(); // target instruction info
-        DebugLoc DL;
         if (MF.getName() == "main") {
           // // allocate stack for shadow stack
 
@@ -63,7 +63,8 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
           //         .addImm(0);
 
           // // Copy Load 0x100 000 (MB) to T5 : lui x30, 0x100
-          // BuildMI(MBB, MI, DL, XII->get(RISCV::LUI), RISCV::X30).addImm(0x400);
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::LUI),
+          // RISCV::X30).addImm(0x400);
 
           // // Decrease SP : sub x2, x2, x30
           // BuildMI(MBB, MI, DL, XII->get(RISCV::SUB), RISCV::X2)
@@ -89,29 +90,25 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
         }
       }
 
-      // if (MI.isReturn()) {
-      //   const TargetInstrInfo *XII =
-      //       MF.getSubtarget().getInstrInfo(); // target instruction info
-      //   DebugLoc DL;
-      //   // load shadow to ra : lw ra, 0(t6)
-      //   BuildMI(MBB, MI, DL, XII->get(RISCV::LD), RISCV::X1)
-      //       .addReg(RISCV::X31)
-      //       .addImm(0);
+      if (MI.isReturn() && MF.getName() != "main") {
+        // load shadow to ra : lw ra, 0(t6)
+        BuildMI(MBB, MI, DL, XII->get(RISCV::LD), RISCV::X1)
+            .addReg(RISCV::X31)
+            .addImm(0);
 
-      //   // restore stack on shadow : addi t6, t6, 4
-      //   BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
-      //       .addReg(RISCV::X31)
-      //       .addImm(16);
+        // restore stack on shadow : addi t6, t6, 4
+        BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
+            .addReg(RISCV::X31)
+            .addImm(16);
 
-      //   is_instrumented = true;
-      // }
+        is_instrumented = true;
+      }
 
       x++;
     }
-    return is_instrumented;
   }
 
-  return false;
+    return is_instrumented;
 }
 
 } // end of anonymous namespace
