@@ -77,24 +77,68 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
           BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
               .addReg(RISCV::X31)
               .addImm(-16);
-          // save ra to shadow : sw ra, 0(t6)
-          BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
-              .addReg(RISCV::X31)
+          // START_MPK
+          // Clear AD and WD on Tag 0
+          // https://github.com/riscv/riscv-asm-manual/blob/master/riscv-asm.md#pseudoinstructions-for-accessing-control-and-status-registers
+          // csrrci x0, csr, imm
+          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRCI), RISCV::X0)
+              .addImm(0x8c1)
               .addImm(0);
+
+          // csrrci x0, csr, imm
+          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRCI), RISCV::X0)
+              .addImm(0x8c1)
+              .addImm(1);
+          // END_MPK
+
+          // START_MTE
           // tag the shadow : st zero, 0(t6)
           BuildMI(MBB, MI, DL, XII->get(RISCV::ST), RISCV::X0)
               .addReg(RISCV::X31)
               .addImm(0);
+          // STOP_MTE
 
+          // save ra to shadow : sw ra, 0(t6)
+          BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
+              .addReg(RISCV::X31)
+              .addImm(0);
+
+          // START_MPK
+          // Set AD and WD on Tag 0
+          // csrrsi x0, csr, imm
+          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRSI), RISCV::X0)
+              .addImm(0x8c1)
+              .addImm(0);
+          // csrrsi x0, csr, imm
+          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRSI), RISCV::X0)
+              .addImm(0x8c1)
+              .addImm(1);
+          // END_MPK
           is_instrumented = true;
         }
       }
 
       if (MI.isReturn() && MF.getName() != "main") {
+        // START_MPK
+        // Clear AD on Tag 0
+        // csrrci x0, csr, imm
+        BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRCI), RISCV::X0)
+            .addImm(0x8c1)
+            .addImm(0);
+        // END_MPK
+
         // load shadow to ra : lw ra, 0(t6)
         BuildMI(MBB, MI, DL, XII->get(RISCV::LD), RISCV::X1)
             .addReg(RISCV::X31)
             .addImm(0);
+
+        // START_MPK
+        // Set AD on Tag 0
+        // csrrsi x0, csr, imm
+        BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRSI), RISCV::X0)
+            .addImm(0x8c1)
+            .addImm(0);
+        // END_MPK
 
         // restore stack on shadow : addi t6, t6, 4
         BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
@@ -108,7 +152,7 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
     }
   }
 
-    return is_instrumented;
+  return is_instrumented;
 }
 
 } // end of anonymous namespace
