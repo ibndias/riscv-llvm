@@ -82,21 +82,19 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
           // https://github.com/riscv/riscv-asm-manual/blob/master/riscv-asm.md#pseudoinstructions-for-accessing-control-and-status-registers
           // csrrci x0, csr, imm
           BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRCI), RISCV::X0)
-              .addImm(0x8c1)
+              .addImm(0x042)
               .addImm(0);
 
           // csrrci x0, csr, imm
           BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRCI), RISCV::X0)
-              .addImm(0x8c1)
+              .addImm(0x042)
               .addImm(1);
           // END_MPK
 
-          // START_MTE
-          // tag the shadow : st zero, 0(t6)
-          BuildMI(MBB, MI, DL, XII->get(RISCV::ST), RISCV::X0)
+          // save ra to shadow : sw ra, 0(t6)
+          BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
               .addReg(RISCV::X31)
               .addImm(0);
-          // STOP_MTE
 
           // save ra to shadow : sw ra, 0(t6)
           BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
@@ -107,11 +105,11 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
           // Set AD and WD on Tag 0
           // csrrsi x0, csr, imm
           BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRSI), RISCV::X0)
-              .addImm(0x8c1)
+              .addImm(0x042)
               .addImm(0);
           // csrrsi x0, csr, imm
           BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRSI), RISCV::X0)
-              .addImm(0x8c1)
+              .addImm(0x042)
               .addImm(1);
           // END_MPK
           is_instrumented = true;
@@ -123,7 +121,7 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
         // Clear AD on Tag 0
         // csrrci x0, csr, imm
         BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRCI), RISCV::X0)
-            .addImm(0x8c1)
+            .addImm(0x042)
             .addImm(0);
         // END_MPK
 
@@ -136,7 +134,7 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
         // Set AD on Tag 0
         // csrrsi x0, csr, imm
         BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRSI), RISCV::X0)
-            .addImm(0x8c1)
+            .addImm(0x042)
             .addImm(0);
         // END_MPK
 
