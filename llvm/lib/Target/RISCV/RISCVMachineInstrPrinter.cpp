@@ -74,77 +74,77 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
           // is_instrumented = true;
         } else {
           // allocate stack on shadow : addi t6, t6, -4
-          BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
-              .addReg(RISCV::X31)
-              .addImm(-16);
-          // START_MPK
-          // Clear AD and WD on Tag 0
-          // https://github.com/riscv/riscv-asm-manual/blob/master/riscv-asm.md#pseudoinstructions-for-accessing-control-and-status-registers
-          // csrrci x0, csr, imm
-          // csrrs rd, csr, x0
-          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
-              .addImm(0xC00)
-              .addReg(RISCV::X0);
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
+          //     .addReg(RISCV::X31)
+          //     .addImm(-16);
+          // // START_MPK
+          // // Clear AD and WD on Tag 0
+          // // https://github.com/riscv/riscv-asm-manual/blob/master/riscv-asm.md#pseudoinstructions-for-accessing-control-and-status-registers
+          // // csrrci x0, csr, imm
+          // // csrrs rd, csr, x0
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
+          //     .addImm(0xC00)
+          //     .addReg(RISCV::X0);
 
-          // csrrci x0, csr, imm
-          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
-              .addImm(0xC00)
-              .addReg(RISCV::X0);
-          // END_MPK
+          // // csrrci x0, csr, imm
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
+          //     .addImm(0xC00)
+          //     .addReg(RISCV::X0);
+          // // END_MPK
 
-          // save ra to shadow : sw ra, 0(t6)
-          BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
-              .addReg(RISCV::X31)
-              .addImm(0);
+          // // save ra to shadow : sw ra, 0(t6)
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
+          //     .addReg(RISCV::X31)
+          //     .addImm(0);
 
-          // save ra to shadow : sw ra, 0(t6)
-          BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
-              .addReg(RISCV::X31)
-              .addImm(0);
+          // // save ra to shadow : sw ra, 0(t6)
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
+          //     .addReg(RISCV::X31)
+          //     .addImm(0);
 
-          // START_MPK
-          // Set AD and WD on Tag 0
-          // csrrsi x0, csr, imm
-          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
-              .addImm(0xC00)
-              .addReg(RISCV::X0);
-          // csrrsi x0, csr, imm
-          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
-              .addImm(0xC00)
-              .addReg(RISCV::X0);
-          // END_MPK
-          is_instrumented = true;
+          // // START_MPK
+          // // Set AD and WD on Tag 0
+          // // csrrsi x0, csr, imm
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
+          //     .addImm(0xC00)
+          //     .addReg(RISCV::X0);
+          // // csrrsi x0, csr, imm
+          // BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
+          //     .addImm(0xC00)
+          //     .addReg(RISCV::X0);
+          // // END_MPK
+          // is_instrumented = true;
         }
       }
 
       if (MI.isReturn() && MF.getName() != "main") {
-        // START_MPK
-        // Clear AD on Tag 0
-        // csrrci x0, csr, imm
-          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
-              .addImm(0xC00)
-              .addReg(RISCV::X0);
-        // END_MPK
+        // // START_MPK
+        // // Clear AD on Tag 0
+        // // csrrci x0, csr, imm
+        //   BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
+        //       .addImm(0xC00)
+        //       .addReg(RISCV::X0);
+        // // END_MPK
 
-        // load shadow to ra : lw ra, 0(t6)
-        BuildMI(MBB, MI, DL, XII->get(RISCV::LD), RISCV::X1)
-            .addReg(RISCV::X31)
-            .addImm(0);
+        // // load shadow to ra : lw ra, 0(t6)
+        // BuildMI(MBB, MI, DL, XII->get(RISCV::LD), RISCV::X1)
+        //     .addReg(RISCV::X31)
+        //     .addImm(0);
 
-        // START_MPK
-        // Set AD on Tag 0
-        // csrrsi x0, csr, imm
-          BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
-              .addImm(0xC00)
-              .addReg(RISCV::X0);
-        // END_MPK
+        // // START_MPK
+        // // Set AD on Tag 0
+        // // csrrsi x0, csr, imm
+        //   BuildMI(MBB, MI, DL, XII->get(RISCV::CSRRS), RISCV::X0)
+        //       .addImm(0xC00)
+        //       .addReg(RISCV::X0);
+        // // END_MPK
 
-        // restore stack on shadow : addi t6, t6, 4
-        BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
-            .addReg(RISCV::X31)
-            .addImm(16);
+        // // restore stack on shadow : addi t6, t6, 4
+        // BuildMI(MBB, MI, DL, XII->get(RISCV::ADDI), RISCV::X31)
+        //     .addReg(RISCV::X31)
+        //     .addImm(16);
 
-        is_instrumented = true;
+        // is_instrumented = true;
       }
 
       x++;
