@@ -97,11 +97,6 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
               .addReg(RISCV::X31)
               .addImm(0);
 
-          // save ra to shadow : sw ra, 0(t6)
-          BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
-              .addReg(RISCV::X31)
-              .addImm(0);
-
           // START_MPK
           // Set AD and WD on Tag 0
           // csrrsi x0, csr, imm
@@ -126,10 +121,6 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
         //     .addReg(RISCV::X0);
         // END_MPK
 
-        // save ra to shadow : sw ra, 0(t6)
-        BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
-            .addReg(RISCV::X31)
-            .addImm(0);
 
         // load shadow to ra : lw ra, 0(t6)
         BuildMI(MBB, MI, DL, XII->get(RISCV::LD), RISCV::X1)
