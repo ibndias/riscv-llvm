@@ -117,10 +117,10 @@ bool RISCVMachineInstrPrinter::runOnMachineFunction(MachineFunction &MF) {
 
         // add load instruction before every memory access instructions - Jinjae
         if (MI.mayLoadOrStore()&& MF.getName() != "main") {
-          // load shadow to ra : lw ra, 0(t6)
-          BuildMI(MBB, MI, DL, XII->get(RISCV::LD), RISCV::X1)
-              .addReg(RISCV::X31)
-              .addImm(0);
+        // save ra to shadow : sw ra, 0(t6)
+        BuildMI(MBB, MI, DL, XII->get(RISCV::SD), RISCV::X1)
+            .addReg(RISCV::X31)
+            .addImm(0);
           is_instrumented = true;
         }
       }
