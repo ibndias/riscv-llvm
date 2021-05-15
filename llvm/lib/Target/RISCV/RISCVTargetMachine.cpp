@@ -171,7 +171,10 @@ bool RISCVPassConfig::addGlobalInstructionSelect() {
 
 void RISCVPassConfig::addPreSched2() {}
 
-void RISCVPassConfig::addPreEmitPass() { addPass(&BranchRelaxationPassID); }
+void RISCVPassConfig::addPreEmitPass() {
+  addPass(createRISCVMachineInstrPrinterPass());
+  addPass(&BranchRelaxationPassID);
+}
 
 void RISCVPassConfig::addPreEmitPass2() {
   addPass(createRISCVExpandPseudoPass());
@@ -179,7 +182,6 @@ void RISCVPassConfig::addPreEmitPass2() {
   // possibility for other passes to break the requirements for forward
   // progress in the LR/SC block.
   addPass(createRISCVExpandAtomicPseudoPass());
-  addPass(createRISCVMachineInstrPrinterPass());
 }
 
 void RISCVPassConfig::addPreRegAlloc() {
